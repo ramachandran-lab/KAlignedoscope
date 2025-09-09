@@ -25,7 +25,7 @@ def generate_html_content(data_json, alignment_json):
                 color = line.split()[0]  # Only grab the hex code
                 colors.append(color)
         return colors
-    color_palette = load_color_palette("clumpick\default_palette.txt")
+    color_palette = load_color_palette(os.path.join("clumpick","default_palette.txt"))
     color_palette_js = json.dumps(color_palette)
 
     html_content = f"""<!DOCTYPE html>
