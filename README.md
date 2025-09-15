@@ -22,9 +22,9 @@ Idea of how to explain this section nicely:
 
 ## Processing outputs from other tools
 This tool primarily functions as a visualization and data navigation tool for alignment results, which may be created from running existing packages such as CLUMPPLING or PONG. These results may need to be processed before the datasets are fed into CLUMPICK. Two python functions are provided
-# processFromExternal.py
+### processFromExternal.py
 which matches case and title structures, converting from .Q matrice file shapes. 
-# addPopulation.py
+### addPopulation.py
 which adds a Population column if given. 
 Run the following lines in the terminal to initialize the tool:
 ````
