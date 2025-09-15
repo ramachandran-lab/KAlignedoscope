@@ -19,7 +19,13 @@ https://github.com/ramachandran-lab/Clumpick/tree/a9c6dbadbb3e4174a99e456b3af78d
 Idea of how to explain this section nicely:
 1. Explain what the data is, and how it is formatted
 2. Confirm that they have installed it correctly and it is in the correct directory under the Clumpick folder
-3. 
+
+## Processing outputs from other tools
+This tool primarily functions as a visualization and data navigation tool for alignment results, which may be created from running existing packages such as CLUMPPLING or PONG. These results may need to be processed before the datasets are fed into CLUMPICK. Two python functions are provided
+# processFromExternal.py
+which matches case and title structures, converting from .Q matrice file shapes. 
+# addPopulation.py
+which adds a Population column if given. 
 Run the following lines in the terminal to initialize the tool:
 ````
 python -m clumpick \
