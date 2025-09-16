@@ -20,15 +20,25 @@ Idea of how to explain this section nicely:
 1. Explain what the data is, and how it is formatted
 2. Confirm that they have installed it correctly and it is in the correct directory under the Clumpick folder
 
+
+Run the following lines in the terminal to initialize the tool:
+````
+python -m clumpick 
+--membership_folder Data/Cape_Verde_Data 
+--alignment_file Data/Cape_Verde_Alignment.txt 
+````
+
+
 ## Processing outputs from other tools
-This tool primarily functions as a visualization and data navigation tool for alignment results, which may be created from running existing packages such as CLUMPPLING or PONG. These results may need to be processed before the datasets are fed into CLUMPICK. Two python functions are provided
+This tool primarily functions as a visualization and data navigation tool for alignment results, which may be created from running existing packages such as CLUMPPLING or PONG. These results may need to be processed before the datasets are fed into CLUMPICK. Two python functions are provided to assist with preparing data.
+
+### File input formatting 
+#### Title 
+Clumpick reads each table as an individual structure plot, as such, the user should tuck all their .Q matrices or processed .CSV files into the data folder under **Clumpick**. Due to the particular nature of this tool that relies on detecting particular K modes and M clusters for layout, each file in the folder should be consistently named with information that must be included in the title: **K** = X Clusters and **M** = Y Modes. For example: ````YourName_KXMY.Q````
+#### Data Layout
+There should be a name column, optional population column, and $K$ amount of columns for the cluster proportions. It should be noted that the number of of $K$ clusters for each file should be matched across file name and number of cluster columns. If the user decides to use the ````processFromExternal.py```` function they will be safe on the formatting, otherwise the user should be sure their columns are named particularly (matching case): **name, Population, Cluster1, Cluster2...** and so on. Sum of clusters for each individual should be 1.  
+
 ### processFromExternal.py
 which matches case and title structures, converting from .Q matrice file shapes. 
 ### addPopulation.py
 which adds a Population column if given. 
-Run the following lines in the terminal to initialize the tool:
-````
-python -m clumpick \
---membership_folder Data/Cape_Verde_Data \
---alignment_file Data/Cape_Verde_Alignment.txt 
-````
