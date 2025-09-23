@@ -1,7 +1,7 @@
 [project]
-name = "clumpick"
+name = "KAlignedoscope"
 version = "0.1.0"
-description = "INteractive Visualization Tool for Clustering Alignment"
+description = "Interactive Visualization Tool for Clustering Alignment"
 authors = [
     {name = "Avery Guo",email = "avery_guo@brown.edu"}
 ]

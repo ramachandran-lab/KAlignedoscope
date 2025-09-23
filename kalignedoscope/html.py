@@ -25,14 +25,14 @@ def generate_html_content(data_json, alignment_json):
                 color = line.split()[0]  # Only grab the hex code
                 colors.append(color)
         return colors
-    color_palette = load_color_palette(os.path.join("clumpick","default_palette.txt"))
+    color_palette = load_color_palette(os.path.join("kalignedoscope","default_palette.txt"))
     color_palette_js = json.dumps(color_palette)
 
     html_content = f"""<!DOCTYPE html>
 <html>
 <head>
   <meta charset="utf-8">
-  <title>D3 Multi-Chart Visualization</title>
+  <title>KAlignedoscope</title>
   <script src="https://d3js.org/d3.v7.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
@@ -98,8 +98,8 @@ color: rgba(245, 238, 187, 0.6);
 
 #toggleNetworkBtn {{
 display: relative;
-width: 90px;
-height: 90px;
+width: 70px;
+height: 70px;
 font-family: "Helvetica", sans-serif;
 font-weight: bold;
 text-align: center;
@@ -115,8 +115,8 @@ margin-right: 20px;
 
 #resetZoomBtn {{
 display: relative;
-width: 90px;
-height: 90px;
+width: 70px;
+height: 70px;
 font-family: "Helvetica", sans-serif;
 font-weight: bold;
 text-align: center;
@@ -687,16 +687,20 @@ border-radius: 8px;
 
 <div style="display: flex; align-items: flex-start; gap: 12px; margin-left: 5px; margin-right: 20px;">
 
+<!--
 <div class="info-container2">
-   <button id="toggleNetworkBtn">HIDE NETWORK</button>
-   <button id="resetZoomBtn">RESET ZOOM</button>
-</div>
+   
+</div> -->
+
+<button id="toggleNetworkBtn">HIDE NETWORK</button>
+<button id="resetZoomBtn">RESET ZOOM</button>
 
 <button id="openDomSort">Dominant Sort</button>
 <button id="toggleM1Btn">Major<br>Mode</button>
+</div>
+</div>
 
-</div>
-</div>
+
 
 
 
@@ -777,7 +781,7 @@ border-radius: 8px;
     console.log("Alignment Matrix:", alignmentMatrix);
   </script>
 
-   <script src="clumpick/script.js"></script>
+   <script src="kalignedoscope/script.js"></script>
 </a>
 
 

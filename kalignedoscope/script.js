@@ -370,8 +370,8 @@ Object.entries(populationGroups).forEach(([popName, individuals]) => {
       .attr("x", xCenter + 11)
       .attr("y", popLabelPosition)
       .attr("text-anchor", "end")
-      .attr("transform", `rotate(-33, ${xCenter}, ${popLabelPosition})`)
-      .style("font-size", "50px")
+      .attr("transform", `rotate(-50, ${xCenter}, ${popLabelPosition})`)
+      .style("font-size", "22px")
       .style("font-weight", "bold")
       .style("fill", "black")
       .text(pop);
