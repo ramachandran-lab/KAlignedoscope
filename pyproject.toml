@@ -3,7 +3,9 @@ name = "KAlignedoscope"
 version = "0.1.0"
 description = "Interactive Visualization Tool for Clustering Alignment"
 authors = [
-    {name = "Avery Guo",email = "avery_guo@brown.edu"}
+    {name = "Avery Guo,  Xiran Liu",email = "avery_guo@brown.edu"}
+    
+
 ]
 license = {text = "MIT License"}
 readme = "README.md"
