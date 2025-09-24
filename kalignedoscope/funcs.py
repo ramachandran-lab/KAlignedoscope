@@ -11,12 +11,12 @@ import logging
 
 
 
-def load_files(data_folder, alignment_across_K):
+def load_files(data_folder: str, alignment_across_K: str):
     # Placeholder function to load files
         
 
     # Pattern: e.g., capeverde_K4M2.csv
-    file_pattern = re.compile(r'.*?_K(\d+)M(\d+).*\.csv')
+    file_pattern = re.compile(r'(?:.*?_)?K(\d+)M(\d+)(?:.*)?\.csv')
 
     # Storage for parsed CSV files
     csv_files = {}
@@ -50,8 +50,7 @@ def load_files(data_folder, alignment_across_K):
                                 pass  # Skip if not float
                     data.append(row)
             all_data[k][m] = data # Should be sorted into Cluster number --> Mode number --> (Individual, ClusterX1 float, ClusterX2 float... )
-
-
+            #print(f"Loaded {filepath} with {len(data)} individuals.")
     # Convert all datasets to a JSON object
     data_json = json.dumps(all_data)
 

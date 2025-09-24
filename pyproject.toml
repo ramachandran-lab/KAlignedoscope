@@ -1,20 +1,19 @@
-[project]
+[tool.poetry]
 name = "KAlignedoscope"
-version = "0.1.0"
+version = "0.1.9"
 description = "Interactive Visualization Tool for Clustering Alignment"
-authors = [
-    {name = "Avery Guo,  Xiran Liu",email = "avery_guo@brown.edu"}
-    
-
-]
-license = {text = "MIT License"}
+authors = ["Avery Guo <avery_guo@brown.edu>", "Xiran Liu"]
+license = "MIT"
 readme = "README.md"
-requires-python = ">=3.10"
-dependencies = [
-    "requests (>=2.32.5,<3.0.0)"
-]
+packages = [{ include = "kalignedoscope" }]
+# <- include belongs HERE as an array (not a table)
+include = ["kalignedoscope/script.js", "kalignedoscope/default_palette.txt"]
 
+[tool.poetry.dependencies]
+python = ">=3.10"
+requests = ">=2.32.5,<3.0.0"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
+

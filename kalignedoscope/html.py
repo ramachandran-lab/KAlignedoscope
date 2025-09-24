@@ -7,25 +7,32 @@ import re
 import time
 import datetime
 import logging
-
+from importlib import resources
 
 def generate_html_content(data_json, alignment_json):
+    # Step 2: Generate the HTML content
+    script_text = resources.files("kalignedoscope").joinpath("script.js").read_text(encoding="utf-8")
 
-# Step 2: Generate the HTML content
-    
-
-    # Now to load in the colors 
+    # Now to load in the colors
     def load_color_palette(filepath):
         colors = []
         with open(filepath, "r") as f:
             for line in f:
                 line = line.strip()
-                if not line or line.startswith("//") or line.startswith("#") and len(line) > 7:
+                if not line or line.startswith("//") or (line.startswith("#") and len(line) > 7):
                     continue  # Skip blank lines or comments
                 color = line.split()[0]  # Only grab the hex code
                 colors.append(color)
         return colors
-    color_palette = load_color_palette(os.path.join("kalignedoscope","default_palette.txt"))
+
+    # color_palette = load_color_palette("default_palette.txt")
+    # color_palette = load_color_palette(os.path.join("kalignedoscope","default_palette.txt"))
+    color_palette = [
+        "#FFA437", "#5C9AD4", "#4A5A57", "#2E4057", "#8B0000",
+        "#A7C7E7", "#B8D8D8", "#836953", "#6A584C", "#C78B8B",
+        "#C7A78B", "#C7C78B", "#FF6600", "#A7C78B", "#FF8C00",
+        "#8BC78B", "#FF3333", "#8BC7A7", "#CC0000", "#8BC7C7",
+        "#8BA7C7", "#8B8BC7", "#A78BC7"]
     color_palette_js = json.dumps(color_palette)
 
     html_content = f"""<!DOCTYPE html>
@@ -780,8 +787,10 @@ border-radius: 8px;
 
     console.log("Alignment Matrix:", alignmentMatrix);
   </script>
-
-   <script src="kalignedoscope/script.js"></script>
+  <script>
+  {script_text}
+</script>
+   
 </a>
 
 
@@ -793,13 +802,14 @@ border-radius: 8px;
     # Step 3: Write HTML file and open it
     output_file = "visualization.html"
 
-    with open(output_file, "w") as file:
-        file.write(html_content)
+    with open(output_file, "w", encoding="utf-8", newline="") as f:
+      f.write(html_content)
+
+    # with open(output_file, "w") as file:
+    #   file.write(html_content)
 
     # Open in browser
     full_path = os.path.abspath(output_file)
     webbrowser.open('file://' + full_path)
-
-
 
     return html_content

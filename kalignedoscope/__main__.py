@@ -25,8 +25,10 @@ def main(args):
     if args.label_file:
         labels = np.loadtxt(args.label_file, delimiter=",", dtype=str, skiprows=0)
 
+    #print(f"Processing .Q files from: {input_folder}")
+  
     for filename in os.listdir(input_folder):
-        if filename.endswith(".Q"):
+        if not filename.endswith(".Q"):
             continue
 
         input_path = os.path.join(input_folder, filename)
@@ -69,9 +71,10 @@ def main(args):
 
         # Save
         df.to_csv(output_path, index=False)
-        print(f"✅ Saved: {output_filename}")
+        #print(f"✅ Saved: {output_filename}")
 
     # MAIN
+    print(args.processed_membership)
     data_json, alignment_json = load_files(args.processed_membership, args.alignment_file)
     html_content = generate_html_content(data_json, alignment_json)
     
