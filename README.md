@@ -4,7 +4,10 @@ Powered by JavaScript D3
 This tool aims to support user-interactivity and friendliness with aesthetic interface. There are three methods of reordering: by population, by dominant cluster of a selected mode, and by vertical cluster stacking order, with changes synced across all modes. There are several customizable features as well, including cluster name relabeling, cluster color picking, and title renaming. Users may also choose the visibility structure of minor modes and network connections when alignment cost and multi-modality is given. Beyond visual elements, information is also available through hovering tooltips across individuals' bars and above network connections. 
 ## Basic Usage
 
-For installation, I will first assume that the user has Python installed (less custom to my tool, easier to write later). 
+For installation, I will first assume that the user has Python installed (less custom to my tool, easier to write later). Users will also need to have the ```pandas`` package installed. If not, run in the terminal 
+````
+pip install pandas
+````
 
 ## Install the KAlignedoscope package
 
