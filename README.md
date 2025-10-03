@@ -1,24 +1,64 @@
-# KAlignedoscope: An interactive visualization tool for aligned clustering results from population structures analyses
-Powered by JavaScript D3
-## Feature Highlights
-This tool aims to support user-interactivity and friendliness with aesthetic interface. There are three methods of reordering: by population, by dominant cluster of a selected mode, and by vertical cluster stacking order, with changes synced across all modes. There are several customizable features as well, including cluster name relabeling, cluster color picking, and title renaming. Users may also choose the visibility structure of minor modes and network connections when alignment cost and multi-modality is given. Beyond visual elements, information is also available through hovering tooltips across individuals' bars and above network connections. 
-## Basic Usage
+# *KAlignedoscope*: An interactive visualization tool for aligned clustering results from population structures analyses
+-Powered by JavaScript D3-
 
-For installation, I will first assume that the user has Python installed (less custom to my tool, easier to write later). Users will also need to have the ```pandas`` package installed. If not, run in the terminal 
+***KAlignedoscope*** provides interactive visualizations for **aligned clustering results from population structure analysis** (e.g., [*Structure*](https://web.stanford.edu/group/pritchardlab/structure.html), [*ADMIXTURE*](https://github.com/NovembreLab/admixture), [*fastStructure*](https://rajanil.github.io/fastStructure)) that are aligned by **clustering alignment** methods (e.g., [*Clumppling*](https://github.com/PopGenClustering/Clumppling), [*Pong*](https://github.com/ramachandran-lab/pong)).
+
+## Example interface
+[PUT A FIG HERE]
+
+## A summary of features
+Here are some terminologies we use throughout this guide:
+* Membership matrix
+* Clustering mode
+  * major mode
+  * minor mode
+* Structure plot
+* Population label
+
+***KAlignedoscope*** aims to support user-interactivity and friendliness with aesthetic interface. Some important features include:
+1. Reordering:
+   * (if population label is provided for each individual) reorder population
+   * reorder individuals by dominant cluster in a population
+   * reorder clusters (update its vertical stacking order in the structure plot)
+2. Highlight a cluster
+3. Display of alignment quality between cluster modes with different K
+4. Display of information of specific component through hovering tooltips.
+5. Other customizable features: cluster name relabeling, cluster color picking, and title renaming. 
+
+## Installation
+### *Python* and dependencies
+[How to install Python]. 
+
+***KAlignedoscope*** has minimal package dependicy requirement ``, ``, ``, and ``, all are Python's cefault (Standard Library) packages. In addition, it requires the `pandas` package, which should be installed upon the installation of *KAlignedoscope*; if it is not, install it via
 ````
 pip install pandas
 ````
 
-## Install the KAlignedoscope package
+### Installing *KAlignedoscope*
 
-Inside of the command line, write:
+Run
 ````
 pip install kalignedoscope
 ````
-It will be useful to download the example datasets and follow the available tutorial. It may be accessed below here: 
-https://github.com/ramachandran-lab/KAlignedoscope/tree/a9c6dbadbb3e4174a99e456b3af78d39a7b46f91/Data
+to install the tool. To check if the tool has been successfully installed, run
+````
+python -m kalignedoscope -h
+````
+which will prompt the user with the following helper messages:
+````bash
+FILL THIS PART
+````
 
-## To run KAlignedoscope on example dataset
+## Run KAlignedoscope on an example dataset
+
+First, download the example dataset from: [https://github.com/ramachandran-lab/KAlignedoscope/Data]([https://github.com/ramachandran-lab/KAlignedoscope/tree/a9c6dbadbb3e4174a99e456b3af78d39a7b46f91/](https://github.com/ramachandran-lab/KAlignedoscope/Data).
+
+This is [describe the dataset here].
+
+[Describe the data format]
+
+Suppose these data are put under the directoy ``PATH_TO_EX``, etc...
+
 Idea of how to explain this section nicely:
 1. Explain what the data is, and how it is formatted
 2. Confirm that they have installed it correctly and it is in the correct directory under the KAlignedoscope folder
@@ -30,10 +70,7 @@ python -m kalignedoscope
 --membership_folder Data/Cape_Verde_Data 
 --alignment_file Data/Cape_Verde_Alignment.txt 
 ````
-For help and more options write in the command line:
-````
-pythom -m kalignedoscope -h
-````
+
 ## Processing outputs from other tools
 This tool primarily functions as a visualization and data navigation tool for alignment results, which may be created from running existing packages such as CLUMPPLING or PONG. These results may need to be processed before the datasets are fed into CLUMPICK. Two python functions are provided to assist with preparing data.
 
