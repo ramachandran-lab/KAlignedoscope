@@ -13,15 +13,12 @@ import logging
 
 def load_files(data_folder: str, alignment_across_K: str):
     # Placeholder function to load files
-        
-
+    
     # Pattern: e.g., capeverde_K4M2.csv
     file_pattern = re.compile(r'(?:.*?_)?K(\d+)M(\d+)(?:.*)?\.csv')
 
     # Storage for parsed CSV files
     csv_files = {}
-
-
 
     # Scan the directory and categorize
     for filename in os.listdir(data_folder):
@@ -74,4 +71,19 @@ def load_files(data_folder: str, alignment_across_K: str):
 
 
 
-
+def load_pong_acrossK(alignment_file: str):
+    print("Loading PONG across-K alignment from:", alignment_file)
+    print("Under construction...")
+    # # Load the alignment CSV file
+    # alignment_data = {}
+    # with open(alignment_file) as f:
+    #     lines = f.readlines()
+    # # Clean up empty lines
+    # lines = [line for line in lines if line.strip()]
+    # # Find the last occurrence of "===" to identify the start of the major mode section
+    # idx_before = [line for line in lines if line.startswith("===")][-1]
+    # # Extract major mode lines
+    # major_mode_lines = lines[lines.index(idx_before) + 1:]
+    # # Extract major mode names from these lines
+    # major_modes = [line.split()[0].strip() for line in major_mode_lines if line.strip()]
+    # return major_modes

@@ -28,8 +28,8 @@ def generate_html_content(data_json, alignment_json):
     # color_palette = load_color_palette("default_palette.txt")
     # color_palette = load_color_palette(os.path.join("kalignedoscope","default_palette.txt"))
     color_palette = [
-        "#FFA437", "#5C9AD4", "#4A5A57", "#2E4057", "#8B0000",
-        "#A7C7E7", "#B8D8D8", "#836953", "#6A584C", "#C78B8B",
+        "#FFA437", "#5C9AD4", "#4A5A57", "#B8D8D8", "#8B0000",
+        "#A7C7E7", "#2E4057", "#836953", "#6A584C", "#C78B8B",
         "#C7A78B", "#C7C78B", "#FF6600", "#A7C78B", "#FF8C00",
         "#8BC78B", "#FF3333", "#8BC7A7", "#CC0000", "#8BC7C7",
         "#8BA7C7", "#8B8BC7", "#A78BC7"]
@@ -673,15 +673,15 @@ border-radius: 8px;
      <li> <b>Refresh</b> the page at any time to reset the view. </li>
      <li><b> Relabel the Page Title</b> by clicking on the text. </li>
      <br>
-     <li> <b>Dominant Sort</b> allows the user to select one plot, for which the major cluster will be identified for each population, and within each population individuals will be reordered in descending memberships. Then, all plots will be rearranged according to the order of individuals from the Dominantly Sorted plot. </li>
-     <li> <b>Major Modes</b> control the visibility of the minor modes for each of the K clusters. It will display only the primary mode of each K, and result in only one column. </li>
+     <li> <b>Sort By Cluster Dominance</b> allows the user to select one plot, for which the major cluster will be identified for each population, and within each population individuals will be reordered in descending memberships. Then, all plots will be rearranged according to the order of individuals from the Dominantly Sorted plot. </li>
+     <li> <b>Hide Minor Modes</b> control the visibility of the minor modes for each of the K clusters. It will display only the primary mode of each K, and result in only one column. </li>
      <br>
      <li><b>Network Connection Visibility</b> is controlled by the circular eye button. It provides information reflected in the opacity of the line, for the alignment across K clusters. Opacity is the strength of the connection relative to all other connections. Hovering over a line will display the user-provided alignment cost. </li>
      <li><b>Complete Display</b> of all plots may be accessed through the magnify button, and Fullscreen may be accessed through the square button of the active chart. </li>
      <li><b>Downloading</b> will provide the user with two .PNG files - the full chart containing all modes and the Stacking Legend with user-specified cluster labels. Network connections can be hidden through the Network Connection Visibility button. Furthermore, it will open the print dialogue box, for which the user should select to include background graphics in settings. It is recommended to scale the plotting display with the Complete Display button before downloading. Note that the downloading requires a page that allows multiple file downloads, and typically takes 1-2 minutes. When prompted the user should wait on a page that displays an unresponsive box. Thank you for your patience. </li>
      <br>
      <li><b>Stacking Legend</b> is a vertical drag-and-drop bar that allows the user to designate the top down stacking order of the clusters across all plots. Hovering over a color reveals the user-input cluster label name. </li>
-     <li><b>Cluster Key</b> is a hovering legend that highlights the corresponding cluster across all plots simultaneously, and Custom Colors allows the user to designate colors for each cluster. </li>
+     <li><b>Highlight luster</b> is a hovering legend that highlights the corresponding cluster across all plots simultaneously, and Custom Colors allows the user to designate colors for each cluster. </li>
      <li><b>Cluster Name Relabeling</b> allows for the user to label Clusters, and this information will be updated to the hovering label of the Stacking Legend. </li>
     </p>
     <button id="closeInfo">Close</button>
@@ -702,8 +702,8 @@ border-radius: 8px;
 <button id="toggleNetworkBtn">HIDE NETWORK</button>
 <button id="resetZoomBtn">RESET ZOOM</button>
 
-<button id="openDomSort">Dominant Sort</button>
-<button id="toggleM1Btn">Major<br>Mode</button>
+<button id="openDomSort">Sort By<br>Dominant Cluster</button>
+<button id="toggleM1Btn">Hide Minor<br>Mode</button>
 </div>
 </div>
 
@@ -735,7 +735,7 @@ border-radius: 8px;
   <div class="sidebar-panel-colors">
     <div class="tab-container">
       <div class="tab-buttons">
-        <button class="tab-btn active" data-tab="tab-cluster">Cluster Key</button>
+        <button class="tab-btn active" data-tab="tab-cluster">Highlight <br> Cluster</button>
         <button class="tab-btn" data-tab="tab-colors">Custom Colors</button>
       </div>
       

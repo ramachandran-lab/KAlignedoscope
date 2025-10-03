@@ -1,4 +1,6 @@
 # Data/*
 dist/*
 visualization.html
+dummy_alignment.txt
 clumpick/__pycache__/*
+kalignedoscope/__pycache__/*

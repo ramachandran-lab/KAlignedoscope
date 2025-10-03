@@ -669,7 +669,7 @@ function setDominantSort(enabled) {
   domSortOn = !!enabled; //need to turn it on
 
   const btn = d3.select("#openDomSort");
-  const baseLabel = "Dominant Sort";
+  const baseLabel = "Sort By Cluster Dominance";
   btn.attr("data-base-label", baseLabel);
 
   btn.classed("armed", domSortOn)
@@ -1160,7 +1160,7 @@ d3.select("#toggleM1Btn").on("click", function() {
     // optional: hide overlay connectors to avoid stray lines
     d3.selectAll(".connector-overlay").style("display", "none");
   } else {
-    d3.select(this).html("Major<br> Mode").style("font-size", "18px");
+    d3.select(this).html("Hide Minor<br> Mode").style("font-size", "18px");
     d3.selectAll(".chart-cell").style("display", null); // restore
     d3.selectAll(".connector-overlay").style("display", "block");
   }
