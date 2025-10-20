@@ -3,6 +3,10 @@
 
 ***KAlignedoscope*** provides interactive visualizations for **aligned clustering results from population structure analysis** (e.g., [*Structure*](https://web.stanford.edu/group/pritchardlab/structure.html), [*ADMIXTURE*](https://github.com/NovembreLab/admixture), [*fastStructure*](https://rajanil.github.io/fastStructure)) that are aligned by **clustering alignment** methods (e.g., [*Clumppling*](https://github.com/PopGenClustering/Clumppling), [*Pong*](https://github.com/ramachandran-lab/pong)).
 
+> 💡 **Note:** 
+> Check out [this tutorial](https://github.com/PopGenClustering/popstru-cls-align-vis-workflow) for a comprehensive workflow of performing and consolidating (clustering-based) population structure analysis, including performing *ADMIXTURE*, *Structure*, and *fastStructure* analysis, aligning clustering results using *Clumppling*, and visualizing the aligned results interactively using *KAlignedoscope*.
+
+
 ## Example interface
 <p align="center">
 <img src="interface_ex_capeverde.png" alt="KAlignedoscope's visualization of Cape Verde aligned modes" width="600">
