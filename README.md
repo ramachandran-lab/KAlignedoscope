@@ -48,7 +48,20 @@ python -m kalignedoscope -h
 ````
 which will prompt the user with the following helper messages:
 ````bash
-FILL THIS PART
+usage: __main__.py [-h] [--input INPUT] [--label_file LABEL_FILE] --processed_membership PROCESSED_MEMBERSHIP --alignment_file ALIGNMENT_FILE
+
+KAlignedoscope: A tool for clustering and mapping genomic data.
+
+options:
+  -h, --help            show this help message and exit
+  --input INPUT, -i INPUT
+                        Input folder with .Q files
+  --label_file LABEL_FILE
+                        Optional file with individual labels to add as the second column
+  --processed_membership PROCESSED_MEMBERSHIP
+                        Input folder containing the clustering result files.
+  --alignment_file ALIGNMENT_FILE
+                        Input file containing the cluster alignment.
 ````
 
 ## Run KAlignedoscope on an example dataset
