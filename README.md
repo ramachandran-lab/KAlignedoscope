@@ -8,7 +8,7 @@
 <img src="interface_ex_capeverde.png" alt="KAlignedoscope's visualization of Cape Verde aligned modes" width="600">
 </p>
 
-## Terms
+## Terminologies and summary of features
 Here are some terminologies we use throughout this guide:
 * Membership matrix: The clustering output matrix ($N$ rows by $K$ columns) for $N$ individuals and $K$ clusters. Each row represents an individual's memberships in all clusters, with row entries summing up to one. 
 * Clustering mode: Distinct clustering solutions that are representative of all clustering runs.
@@ -16,8 +16,6 @@ Here are some terminologies we use throughout this guide:
   * minor mode: The clustering mode which fewer clustering runs align to.
 * Structure plot: Visualization of the membership matrix in stacked bar charts. Each individual corresponds to a column in the plot, with its fraction memberships in clusters represented by stacked bars with distinct colors.
 * Population label: The labels pre-assigned to individuals. In population genetics data, this is usually the population that each individual is sampled from, e.g., ``GBR`` for British and ``PUR`` for "Puerto Rican in Puerto Rico" in 1000 Genomes Project data.
-
-## A summary of features
 
 ***KAlignedoscope*** aims to support user-interactivity and friendliness with aesthetic interface. Some important features include:
 1. Reordering:
