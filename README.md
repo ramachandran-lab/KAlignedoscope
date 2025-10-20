@@ -84,9 +84,9 @@ python -m kalignedoscope
 This tool primarily functions as a visualization and data navigation tool for alignment results, which may be created from running existing packages such as *Clumppling* or *Pong*. For results from other clustering alignmnent programs, the results may need to be processed before the datasets are fed into the tool.
 
 ### Notes on Running Directly from *Clummpling*'s Output Directory
-We will need three files: ``modes_aligned`` folder, ``alignment_acrossK_avg.txt`` file, and ``ind_labels_grouped.txt`` file. To make the formatting usuable for our tool you will need to first run it through processFromExternal.py (need to make a output folder path for it to put the sorted data into), then addPopulation.py where you need to use the ind_labels_grouped.txt file (which you should first paste into a .CSV file under a column that matches case with "Population") to add another column to all the datasets. Then the data is ready to be used, but you may want to read in your alignment cost file as well, which should be processed through the convertAligned.py function (which just reads it into CSV format). 
+We will need three files: ``modes_aligned`` folder, ``alignment_acrossK_avg.txt`` file, and ``ind_labels_grouped.txt`` file. The input files are generated based on these files.  
 
-### File input formatting 
+### Input file formatting 
 #### Title 
 KAlignedoscope reads each table as an individual structure plot, as such, the user should tuck all their .Q matrices or processed .CSV files into the data folder under **KAlignedoscope**. Due to the particular nature of this tool that relies on detecting particular K modes and M clusters for layout, each file in the folder should be consistently named with information that must be included in the title: **K** = X Clusters and **M** = Y Modes. For example: ````YourName_KXMY.Q````
 
