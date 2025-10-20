@@ -57,9 +57,9 @@ options:
   --input INPUT, -i INPUT
                         Input folder with .Q files
   --label_file LABEL_FILE
-                        Optional file with individual labels to add as the second column
+                        Optional file with individual labels (to be added as the second column in intermediate files).
   --processed_membership PROCESSED_MEMBERSHIP
-                        Input folder containing the clustering result files.
+                        Path to store intermediate files containing the clustering results.
   --alignment_file ALIGNMENT_FILE
                         Input file containing the cluster alignment.
 ````
