@@ -120,7 +120,7 @@ The following output has been briefly resized with the resize (magnifying) butto
 ## Navigating the tool 
 The interface of Kalignedoscope is designed to be interactive and guided. Mousing over many of the labeled buttons, panels, and tabs, will provide pop-ups with short explanations of the button's usage. For specific features and where to find them, reference the map below. Also, clicking the information icon which has a question mark centered on a cirle on the top left title will be useful. 
 <p align "middle">
-<img width="500" height="400" alt="Figure1WithLabels" src="https://github.com/user-attachments/assets/a68ef1e4-6df4-4519-995e-04417c576244" />
+<img width="400" height="320" alt="Figure1WithLabels" src="https://github.com/user-attachments/assets/a68ef1e4-6df4-4519-995e-04417c576244" />
 <img width="600" height="430" alt="image" src="https://github.com/user-attachments/assets/ecf8d24a-cf8a-4ef0-bc89-91e401f9c37e" />
 </p>
 
