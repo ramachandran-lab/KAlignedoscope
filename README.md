@@ -5,6 +5,12 @@
 
 > 💡 **Note:** 
 > Check out [this tutorial](https://github.com/PopGenClustering/popstru-cls-align-vis-workflow) for a comprehensive workflow of performing and consolidating (clustering-based) population structure analysis, including performing *ADMIXTURE*, *Structure*, and *fastStructure* analysis, aligning clustering results using *Clumppling*, and visualizing the aligned results interactively using *KAlignedoscope*.
+### Outline of README
+* Example Interface
+* Terminologies and Features
+* Installation of Python, KAlignedoscope, and other packages
+* Running KAlignedoscope on Provided Examples
+* Labeled Interface and Recommended Feature Combinations
 
 
 ## Example interface
