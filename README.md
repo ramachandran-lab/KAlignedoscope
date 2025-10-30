@@ -24,8 +24,8 @@ Here are some terminologies we use throughout this guide:
 * Clustering mode: Distinct clustering solutions that are representative of all clustering runs.
   * Major mode: The clustering mode which the largerst number of clustering runs align to.
   * Minor mode: The clustering mode which fewer clustering runs align to.
-* Structure plot: Visualization of the membership matrix in stacked bar charts. Each individual corresponds to a column in the plot, with its fraction memberships in clusters represented by stacked bars with distinct colors.
-* Population label: The labels pre-assigned to individuals. In population genetics data, this is usually the population that each individual is sampled from, e.g., ``GBR`` for British and ``PUR`` for "Puerto Rican in Puerto Rico" in 1000 Genomes Project data.
+* Structure plot: Visualization of the membership matrix in stacked bar charts. Each individual is organized on the x-axis and corresponds to a column in the plot. Each individual's column is made up of proportional membership to clusters represented by vertically stacked bars with distinct colors. 
+* Population label: The labels pre-assigned to individuals, user-provided. In population genetics data, this is usually the population that each individual is sampled from, e.g., ``GBR`` for British and ``PUR`` for "Puerto Rican in Puerto Rico" in 1000 Genomes Project data.
 
 ***KAlignedoscope*** aims to support user-interactivity and friendliness with aesthetic interface. Some important features include:
 1. Reordering:
