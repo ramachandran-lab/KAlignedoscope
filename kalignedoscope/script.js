@@ -38,7 +38,8 @@ const tooltip = d3.select("body").append("div")
   .style("display", "none");
 
 
-// ORGANIZE CHART DATA 
+// ORGANIZE CHART DATA
+console.log("DEBUG: modeStats at startup:", modeStats);
 const allK = Object.keys(allChartData).sort((a, b) => +a.slice(1) - +b.slice(1));
 const lastK = allK[allK.length - 1];
 
@@ -208,9 +209,9 @@ document.querySelectorAll(".tab-btn").forEach(button => {
 // Organizing labels for populations, drawing lines to mark the separation of populations, titles, border
 // Storing info for later network connections
 function renderStackedBarChart(data, container, chartTitle, opts = {}) {
-  const width = 1600;
+  const width = 1800;
   const height = 400;
-  const margin = { top: 60, right: 50, bottom: 100, left: 280 };
+  const margin = { top: 60, right: 50, bottom: 20, left: 200 };
   const svg = container
     .append("div")
     .attr("class", "chart-container")
@@ -371,8 +372,9 @@ Object.entries(populationGroups).forEach(([popName, individuals]) => {
       .attr("y", popLabelPosition)
       .attr("text-anchor", "end")
       .attr("transform", `rotate(-50, ${xCenter}, ${popLabelPosition})`)
-      .style("font-size", "22px")
-      .style("font-weight", "bold")
+      .style("font-size", "18px")
+      .style("font-weight", "700")
+      .style("font-family", "Helvetica, sans-serif")
       .style("fill", "black")
       .text(pop);
 
@@ -397,14 +399,28 @@ Object.entries(populationGroups).forEach(([popName, individuals]) => {
       .attr("transform", `translate(${margin.left},0)`)
       .call(d3.axisLeft(yScale).ticks(0));
 
-    // Title
+    // Title with the run count
+    // Need to remove space from title to match the key format (K2M1 not K2 M1)
+    const modeStatsKey = chartTitle.replace(/\s+/g, "");
+    let sizeText = "";
+    if (typeof modeStats !== 'undefined' && modeStats && modeStats[modeStatsKey] !== undefined) {
+      const assigned = parseInt(modeStats[modeStatsKey], 10) || 0;
+      // compute total runs for this K (sum of all modes starting with Kx)
+      const kKey = chartTitle.split(' ')[0].replace(/\s+/g, ""); // e.g., "K2"
+      const total = Object.keys(modeStats)
+        .filter(k => k.startsWith(kKey))
+        .map(k => parseInt(modeStats[k], 10) || 0)
+        .reduce((a, b) => a + b, 0);
+      sizeText = total > 0 ? ` ${assigned}/${total} runs` : ` n=${assigned} runs`;
+    }
     svg.append("text")
       .attr("x", 180)
       .attr("y", margin.top / 2 + 20)
       .attr("text-anchor", "middle")
-      .style("font-size", "70px")
-      .style("font-family", "Gill Sans, GillSans, 'Gill Sans MT', Calibri, sans-serif")
-      .text(chartTitle);
+      .style("font-size", "50px")
+      .style("font-weight", "500")
+      .style("font-family", "Helvetica, sans-serif")
+      .text(chartTitle + sizeText);
 
     // Border
     svg.append("rect")
@@ -448,9 +464,9 @@ function renderRowOfModes(kNumber, clusterData) {
   row.append("div")
     .style("width", "60px")
     .style("text-align", "right")
-    .style("font-size", "90px")
-    .style("font-family", "Gill Sans, GillSans, 'Gill Sans MT', Calibri, sans-serif")
-    .style("font-weight", "bold")
+    .style("font-size", "72px")
+    .style("font-family", "Helvetica, sans-serif")
+    .style("font-weight", "700")
     .style("padding-right", "30px")
     .text(kLabel);
      
@@ -737,7 +753,7 @@ function renderClusterHoverLegend(clusterKeys) {
     const item = legendBox.append("div")
       .style("display", "flex")
       .style("align-items", "center")
-      .style("gap", "6px")
+      .style("gap", "3px")
       .style("cursor", "pointer")
       .on("mouseover", function() {
         if (!selectedClusterKey) {
@@ -783,10 +799,10 @@ function renderClusterHoverLegend(clusterKeys) {
       .style("align-items", "center")
       .style("justify-content","center")
       .style("font-family", "Helvetica, sans-serif")
-      .style("font-size", "23px")
-      .style("font-weight", "bold")
+      .style("font-size", "18px")
+      .style("font-weight", "700")
       .style("color", "white")
-      .style("margin-left", "10px")
+      .style("margin-left", "8px")
       .text(key.slice(-1)); // Show only the cluster number
   });
 }
@@ -868,8 +884,20 @@ function renderSingleLabelInput(clusterKeys) {
     .property("value", clusterLabels[key] || "")
     .style("width", "90px")
     .on("input", function () {
-      clusterLabels[key] = this.value.trim(); // save the label and it will update to both hovering on the vertical stacking legend and when hovering on the charts
+      clusterLabels[key] = this.value.trim(); // save the label
+      // Update the legend display in real-time
+      updateClusterStackLegendLabel(key);
     });
+}
+
+// Helper function to update a single cluster's label in the legend
+function updateClusterStackLegendLabel(key) {
+  const span = d3.select(`[data-cluster="${key}"] span`);
+  if (!span.empty()) {
+    const clusterNum = key.match(/\d+$/)[0];
+    const label = clusterLabels[key] || clusterNum;
+    span.text(label);
+  }
 }
 
 // Button handlers 
@@ -897,15 +925,17 @@ function renderClusterStackLegend(clusterKeys) {
     .style("flex-direction", "column")
     .style("align-items", "stretch")
     .style("border", "none")
-    .style("width", "50px")
+    .style("width", "120px")
     .style("height", "85%")
     .style("background", "transparent")
     .style("padding", "0")
     .style("margin-right", "35px");
 
   clusterKeys.forEach(key => {
-    //Take the number from the cluster key, neater for the hovering part
+    //Take the number from the cluster key
     const clusterNum = key.match(/\d+$/)[0];
+    // Start with just the number, will show custom label if user enters one
+    const initialLabel = clusterLabels[key] || clusterNum;
 
     container.append("div")
       .attr("draggable", true)
@@ -915,31 +945,25 @@ function renderClusterStackLegend(clusterKeys) {
       .style("margin", "0")
       .style("border", "none")
       .style("cursor", "move")
-      .style("position", "relative")  // needed for absolutely positioned number
+      .style("position", "relative")  // needed for absolutely positioned text
+      .style("display", "flex")
+      .style("align-items", "center")
+      .style("justify-content", "center")
+      .style("overflow", "visible")
+      .style("padding", "2px 6px")
       .on("dragstart", clusterDragStart)
       .on("dragover", clusterDragOver)
       .on("drop", clusterDropped)
-      .on("mouseover", (event) => {
-        const label = clusterLabels[key] || `Cluster ${clusterNum}`;
-        tooltip.style("display", "block")
-          .text(label);
-      })
-      .on("mousemove", (event) => {
-        tooltip.style("top", (event.pageY + 10) + "px")
-          .style("left", (event.pageX + 10) + "px");
-      })
-      .on("mouseout", () => {
-        tooltip.style("display", "none");
-      })
       .append("span")
-        .text(clusterNum)
-        .style("position", "absolute")
-        .style("bottom", "4px")
-        .style("right", "6px")
+        .text(initialLabel)
         .style("color", "white")
-        .style("font-weight", "bold")
-        .style("font-size", "18px")
-        .style("pointer-events", "none");
+        .style("font-weight", "700")
+        .style("font-size", "20px")
+        .style("text-align", "center")
+        .style("white-space", "nowrap")
+        .style("overflow", "visible")
+        .style("pointer-events", "none")
+        .style("line-height", "1");
   });
 }
 
@@ -1151,7 +1175,7 @@ d3.select("#toggleM1Btn").on("click", function() {
   showOnlyM1 = !showOnlyM1;
 
   if (showOnlyM1) {
-    d3.select(this).html("Show All<br>Modes").style("font-size", "18px");
+    d3.select(this).html("Show All<br>Modes").style("font-size", "15px");
     // hide any chart cells whose data-mode is not M1
     d3.selectAll(".chart-cell")
       .style("display", function() {
@@ -1160,7 +1184,7 @@ d3.select("#toggleM1Btn").on("click", function() {
     // optional: hide overlay connectors to avoid stray lines
     d3.selectAll(".connector-overlay").style("display", "none");
   } else {
-    d3.select(this).html("Hide Minor<br> Mode").style("font-size", "18px");
+    d3.select(this).html("Hide Minor<br> Mode").style("font-size", "15px");
     d3.selectAll(".chart-cell").style("display", null); // restore
     d3.selectAll(".connector-overlay").style("display", "block");
   }
@@ -1176,6 +1200,24 @@ NetworkBtn.addEventListener("click", () => {
   networkVisible = !networkVisible;
   document.querySelector(".connector-overlay").style.display = networkVisible ? "block" : "none";
   NetworkBtn.innerHTML = networkVisible ? openEyeSVG : closedEyeSVG;
+});
+
+// Toggle mode labels visibility (K3M1, K4M2, etc.)
+let labelsVisible = true;
+const LabelsBtn = document.getElementById("toggleLabelsBtn");
+LabelsBtn.classList.add("rightTopIcon-btn");
+LabelsBtn.innerHTML = "<i class=\"fa-solid fa-bookmark\"></i>";
+
+LabelsBtn.addEventListener("click", () => {
+  labelsVisible = !labelsVisible;
+  d3.selectAll("svg text")
+    .style("display", function() {
+      const text = d3.select(this).text();
+      // Hide/show chart titles (KxMy format) and population labels
+      const isModeLabel = /^K\d+\s+M\d+/.test(text);
+      return (isModeLabel && !labelsVisible) ? "none" : null;
+    });
+  LabelsBtn.innerHTML = labelsVisible ? '<i class="fa-solid fa-bookmark"></i>' : '<i class="fa-solid fa-bookmark-minus"></i>';
 });
 
 // DOWNLOAD IMAGE BUTTON - will export the entire zoom-wrapper div as a PNG image
@@ -1292,10 +1334,120 @@ btnSel1
     d3.select("#tooltip").remove();
   });
 
+// Small blurb for the labels toggle button
+const btnSel3 = d3.select("#toggleLabelsBtn");
+btnSel3
+  .on("mouseenter.tooltip", (event) => {
+    d3.select("body").append("div")
+      .attr("id", "tooltip")
+      .style("position", "absolute")
+      .style("padding", "2px 10px")
+      .style("background", "#333")
+      .style("color", "white")
+      .style("font-family", "Helvetica, sans-serif")
+      .style("border-radius", "6px")
+      .style("font-size", "13px")
+      .style("pointer-events", "none")
+      .style("top", (event.pageY+30) + "px")
+      .style("left", (event.pageX - 80) + "px")
+      .html("Hide or show mode labels.");
+  })
+  .on("mousemove.tooltip", (event) => {
+    d3.select("#tooltip")
+      .style("top",  (event.pageY+30) + "px")
+      .style("left", (event.pageX - 80) + "px");
+  })
+  .on("mouseleave.tooltip", () => {
+    d3.select("#tooltip").remove();
+  });
+
 
 
 // [8] IMAGE EXPORTING FUNCTIONALITY=========================================================================
 // Export the entire chart grid as a PNG image, using dom-to-image-more library
+
+// SVG exporting function adapted from https://stackoverflow.com/a/70955463/15472211
+function exportWholeGridAsSVG(gridEl, filename = "chart-grid.svg") {
+  const svgs = Array.from(gridEl.querySelectorAll("svg"))
+    // skip stuff you don’t want in exports
+    .filter(svg => !svg.classList.contains("no-export") && !svg.closest(".no-export"));
+
+  if (!svgs.length) throw new Error("No <svg> elements found inside #chart-grid.");
+
+  const gridRect = gridEl.getBoundingClientRect();
+
+  const localBox = (el) => {
+    const r = el.getBoundingClientRect();
+    return {
+      x: (r.left - gridRect.left) + gridEl.scrollLeft,
+      y: (r.top  - gridRect.top ) + gridEl.scrollTop,
+      w: r.width,
+      h: r.height
+    };
+  };
+
+  // Compute canvas bounds
+  const items = svgs.map(svg => ({ svg, ...localBox(svg) }));
+  const maxX = Math.ceil(Math.max(...items.map(d => d.x + d.w)));
+  const maxY = Math.ceil(Math.max(...items.map(d => d.y + d.h)));
+
+  const NS = "http://www.w3.org/2000/svg";
+  const out = document.createElementNS(NS, "svg");
+  out.setAttribute("xmlns", NS);
+  out.setAttribute("xmlns:xlink", "http://www.w3.org/1999/xlink");
+  out.setAttribute("width", String(maxX));
+  out.setAttribute("height", String(maxY));
+  out.setAttribute("viewBox", `0 0 ${maxX} ${maxY}`);
+
+  // White background so it doesn’t export transparent
+  const bg = document.createElementNS(NS, "rect");
+  bg.setAttribute("x", "0");
+  bg.setAttribute("y", "0");
+  bg.setAttribute("width", "100%");
+  bg.setAttribute("height", "100%");
+  bg.setAttribute("fill", "#ffffff");
+  out.appendChild(bg);
+
+  // Copy each SVG children into a translated group
+  items.forEach(({ svg, x, y, w, h }) => {
+    const g = document.createElementNS(NS, "g");
+    g.setAttribute("transform", `translate(${x},${y})`);
+
+    // Clone and normalize sizing
+    const clone = svg.cloneNode(true);
+    clone.style.transform = "";
+    clone.style.transformOrigin = "";
+
+    // Ensure viewBox exists (helps preserve internal coordinates)
+    const sw = parseFloat(clone.getAttribute("width"))  || w;
+    const sh = parseFloat(clone.getAttribute("height")) || h;
+    if (!clone.getAttribute("viewBox")) clone.setAttribute("viewBox", `0 0 ${sw} ${sh}`);
+
+    // Move children (avoid nesting <svg> inside <svg>)
+    const frag = document.createDocumentFragment();
+    Array.from(clone.childNodes).forEach(n => frag.appendChild(n.cloneNode(true)));
+    g.appendChild(frag);
+
+    out.appendChild(g);
+  });
+
+  // Now we serialize and download
+  const serializer = new XMLSerializer();
+  let source = serializer.serializeToString(out);
+  if (!source.startsWith("<?xml")) {
+    source = `<?xml version="1.0" encoding="UTF-8"?>\n` + source;
+  }
+
+  const blob = new Blob([source], { type: "image/svg+xml;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
 
 // helpers here
 const sleep = (ms) => new Promise(r => setTimeout(r, ms));
@@ -1313,8 +1465,229 @@ function safeScaleFor(node, desiredScale = 2, maxPixels = 15_000_000) {
   return Math.max(1, Math.floor(s * 100) / 100);
 }
 
-// Render a node to PNG with overflow fix and filters
-function toPNG(node, filename, { scale = 2, quality = 0.95 } = {}) {
+// 1) Build the combined SVG string (same logic as your exportWholeGridAsSVG, but returns the SVG string)
+function buildWholeGridSVGString(gridEl) {
+  const svgs = Array.from(gridEl.querySelectorAll("svg"))
+    .filter(svg => !svg.classList.contains("no-export") && !svg.closest(".no-export"));
+
+  if (!svgs.length) throw new Error("No <svg> elements found inside #chart-grid.");
+
+  const gridRect = gridEl.getBoundingClientRect();
+  const localBox = (el) => {
+    const r = el.getBoundingClientRect();
+    return {
+      x: (r.left - gridRect.left) + gridEl.scrollLeft,
+      y: (r.top  - gridRect.top ) + gridEl.scrollTop,
+      w: r.width,
+      h: r.height
+    };
+  };
+
+  const items = svgs.map(svg => ({ svg, ...localBox(svg) }));
+  const maxX = Math.ceil(Math.max(...items.map(d => d.x + d.w)));
+  const maxY = Math.ceil(Math.max(...items.map(d => d.y + d.h)));
+
+  const NS = "http://www.w3.org/2000/svg";
+  const out = document.createElementNS(NS, "svg");
+  out.setAttribute("xmlns", NS);
+  out.setAttribute("width", String(maxX));
+  out.setAttribute("height", String(maxY));
+  out.setAttribute("viewBox", `0 0 ${maxX} ${maxY}`);
+
+  // white background
+  const bg = document.createElementNS(NS, "rect");
+  bg.setAttribute("x", "0");
+  bg.setAttribute("y", "0");
+  bg.setAttribute("width", "100%");
+  bg.setAttribute("height", "100%");
+  bg.setAttribute("fill", "#ffffff");
+  out.appendChild(bg);
+
+  items.forEach(({ svg, x, y, w, h }) => {
+    const g = document.createElementNS(NS, "g");
+    g.setAttribute("transform", `translate(${x},${y})`);
+
+    const clone = svg.cloneNode(true);
+    clone.style.transform = "";
+    clone.style.transformOrigin = "";
+
+    const sw = parseFloat(clone.getAttribute("width"))  || w;
+    const sh = parseFloat(clone.getAttribute("height")) || h;
+    if (!clone.getAttribute("viewBox")) clone.setAttribute("viewBox", `0 0 ${sw} ${sh}`);
+
+    const frag = document.createDocumentFragment();
+    Array.from(clone.childNodes).forEach(n => frag.appendChild(n.cloneNode(true)));
+    g.appendChild(frag);
+    out.appendChild(g);
+  });
+
+  const serializer = new XMLSerializer();
+  let source = serializer.serializeToString(out);
+  if (!source.startsWith("<?xml")) {
+    source = `<?xml version="1.0" encoding="UTF-8"?>\n` + source;
+  }
+  return source;
+}
+
+// 2) Convert SVG string -> PNG (or JPEG) via canvas, then download
+async function downloadRasterFromSVGString(svgString, filename, {
+  scale = 2,
+  type = "image/png",     // "image/png" or "image/jpeg"
+  quality = 0.95          // used for JPEG only
+} = {}) {
+  const blob = new Blob([svgString], { type: "image/svg+xml;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+
+  try {
+    const img = new Image();
+    // If you use external images inside SVG, you may need: img.crossOrigin = "anonymous";
+    await new Promise((resolve, reject) => {
+      img.onload = resolve;
+      img.onerror = reject;
+      img.src = url;
+    });
+
+    const w = Math.ceil(img.width * scale);
+    const h = Math.ceil(img.height * scale);
+
+    const canvas = document.createElement("canvas");
+    canvas.width = w;
+    canvas.height = h;
+
+    const ctx = canvas.getContext("2d");
+    ctx.setTransform(scale, 0, 0, scale, 0, 0);
+    ctx.drawImage(img, 0, 0);
+
+    const outBlob = await new Promise((resolve) => {
+      canvas.toBlob(resolve, type, quality);
+    });
+
+    const outUrl = URL.createObjectURL(outBlob);
+    const a = document.createElement("a");
+    a.href = outUrl;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(outUrl), 2000);
+  } finally {
+    URL.revokeObjectURL(url);
+  }
+}
+
+// 1) Build the combined SVG string (same logic as your exportWholeGridAsSVG, but returns the SVG string)
+function buildWholeGridSVGString(gridEl) {
+  const svgs = Array.from(gridEl.querySelectorAll("svg"))
+    .filter(svg => !svg.classList.contains("no-export") && !svg.closest(".no-export"));
+
+  if (!svgs.length) throw new Error("No <svg> elements found inside #chart-grid.");
+
+  const gridRect = gridEl.getBoundingClientRect();
+  const localBox = (el) => {
+    const r = el.getBoundingClientRect();
+    return {
+      x: (r.left - gridRect.left) + gridEl.scrollLeft,
+      y: (r.top  - gridRect.top ) + gridEl.scrollTop,
+      w: r.width,
+      h: r.height
+    };
+  };
+
+  const items = svgs.map(svg => ({ svg, ...localBox(svg) }));
+  const maxX = Math.ceil(Math.max(...items.map(d => d.x + d.w)));
+  const maxY = Math.ceil(Math.max(...items.map(d => d.y + d.h)));
+
+  const NS = "http://www.w3.org/2000/svg";
+  const out = document.createElementNS(NS, "svg");
+  out.setAttribute("xmlns", NS);
+  out.setAttribute("width", String(maxX));
+  out.setAttribute("height", String(maxY));
+  out.setAttribute("viewBox", `0 0 ${maxX} ${maxY}`);
+
+  // white background
+  const bg = document.createElementNS(NS, "rect");
+  bg.setAttribute("x", "0");
+  bg.setAttribute("y", "0");
+  bg.setAttribute("width", "100%");
+  bg.setAttribute("height", "100%");
+  bg.setAttribute("fill", "#ffffff");
+  out.appendChild(bg);
+
+  items.forEach(({ svg, x, y, w, h }) => {
+    const g = document.createElementNS(NS, "g");
+    g.setAttribute("transform", `translate(${x},${y})`);
+
+    const clone = svg.cloneNode(true);
+    clone.style.transform = "";
+    clone.style.transformOrigin = "";
+
+    const sw = parseFloat(clone.getAttribute("width"))  || w;
+    const sh = parseFloat(clone.getAttribute("height")) || h;
+    if (!clone.getAttribute("viewBox")) clone.setAttribute("viewBox", `0 0 ${sw} ${sh}`);
+
+    const frag = document.createDocumentFragment();
+    Array.from(clone.childNodes).forEach(n => frag.appendChild(n.cloneNode(true)));
+    g.appendChild(frag);
+    out.appendChild(g);
+  });
+
+  const serializer = new XMLSerializer();
+  let source = serializer.serializeToString(out);
+  if (!source.startsWith("<?xml")) {
+    source = `<?xml version="1.0" encoding="UTF-8"?>\n` + source;
+  }
+  return source;
+}
+
+// 2) Convert SVG string -> PNG (or JPEG) via canvas, then download
+async function downloadRasterFromSVGString(svgString, filename, {
+  scale = 2,
+  type = "image/png",     // "image/png" or "image/jpeg"
+  quality = 0.95          // used for JPEG only
+} = {}) {
+  const blob = new Blob([svgString], { type: "image/svg+xml;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+
+  try {
+    const img = new Image();
+    // If you use external images inside SVG, you may need: img.crossOrigin = "anonymous";
+    await new Promise((resolve, reject) => {
+      img.onload = resolve;
+      img.onerror = reject;
+      img.src = url;
+    });
+
+    const w = Math.ceil(img.width * scale);
+    const h = Math.ceil(img.height * scale);
+
+    const canvas = document.createElement("canvas");
+    canvas.width = w;
+    canvas.height = h;
+
+    const ctx = canvas.getContext("2d");
+    ctx.setTransform(scale, 0, 0, scale, 0, 0);
+    ctx.drawImage(img, 0, 0);
+
+    const outBlob = await new Promise((resolve) => {
+      canvas.toBlob(resolve, type, quality);
+    });
+
+    const outUrl = URL.createObjectURL(outBlob);
+    const a = document.createElement("a");
+    a.href = outUrl;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(outUrl), 2000);
+  } finally {
+    URL.revokeObjectURL(url);
+  }
+}
+
+
+// Render a node to JPEG (usually faster + smaller than PNG)
+async function toJPG(node, filename, { scale = 2, quality = 0.95 } = {}) {
   const width  = Math.max(node.scrollWidth,  node.clientWidth);
   const height = Math.max(node.scrollHeight, node.clientHeight);
 
@@ -1335,22 +1708,33 @@ function toPNG(node, filename, { scale = 2, quality = 0.95 } = {}) {
     quality,
     filter: (n) => {
       if (!n || !n.classList) return true;
-      // Skip ephemeral/expensive layers
       return !n.classList.contains('tooltip') &&
              !n.classList.contains('hover-overlay') &&
              !n.classList.contains('no-export');
     }
   };
 
-  return domtoimage.toPng(node, opts).then((dataUrl) => {
+  try {
+    // dom-to-image-more returns a dataURL for JPEG; convert to Blob for reliability
+    const dataUrl = await domtoimage.toJpeg(node, opts);
+    const blob = await (await fetch(dataUrl)).blob();
+
+    const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = dataUrl;
+    a.href = url;
     a.download = filename;
+    document.body.appendChild(a);
     a.click();
-  }).finally(() => {
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+  } finally {
     node.style.overflow = prevOverflow;
-  });
+  }
 }
+
+
+
+
 
 // A styled progress badge in the middle of the page, but not sure if it is helping with the unresponsiveness 
 // Page is usually unresponsive twice
@@ -1375,25 +1759,42 @@ function showProgressBadge() {
   return el;
 }
 
-// --- Button handler: export each row to its own JPEG, yielding between rows --- GO THROUGH AGAIN TO UNDERSTAND PROPER TWEAKS
+// --- Button handler: export each row to its own JPEG, yielding between rows --- GO THROUGH AGAIN TO TWEAK
 document.getElementById("downloadImgBtn").addEventListener("click", async function () {
   const grid = document.getElementById("chart-grid");
   const rows = Array.from(grid.querySelectorAll(".k-row"));
   const reorderBar = document.getElementById("cluster-reorder-bar");
 
+    
+const svgString = buildWholeGridSVGString(grid);
+
+// PNG (lossless)
+await downloadRasterFromSVGString(svgString, "chart-grid.png", { scale: 2, type: "image/png" });
+
+
+
+  
   // TUNING: default quality/scale
-  const DESIRED_SCALE = 2;   // try 2 first; 3 is sharper but heavier
+  const DESIRED_SCALE = 2;   // try 2 first, 3 is sharper but heavier
   const QUALITY = 0.95;     
-  const MAX_PIXELS = 12_000_000; // cap total pixels to avoid freezes
+  const MAX_PIXELS = 6_000_000; 
 
   const badge = showProgressBadge();
 
   try {
     // If no row grouping yet, fall back to whole-grid export (still with safety cap)
     if (!rows.length) {
+      badge.textContent = `Exporting grid as SVG…`;
+      await nextTick();
+      await idle();
+      exportWholeGridAsSVG(grid, "chart-grid.svg");
+
       const scale = safeScaleFor(grid, DESIRED_SCALE, MAX_PIXELS);
-      badge.textContent = `Exporting grid (scale ${scale}×)…`;
-      await toPNG(grid, "chart-grid.png", { scale, quality: QUALITY });
+      badge.textContent = `Exporting grid as PNG (scale ${scale} x)…`;
+     // await toPNG(grid, "chart-grid.png", { scale, quality: QUALITY });
+     //await toJPG(grid, "chart-grid.jpg", { scale, quality: QUALITY });
+
+
     } else {
       // Export each row (prevents massive single render)
       for (let i = 0; i < rows.length; i++) {
@@ -1401,23 +1802,24 @@ document.getElementById("downloadImgBtn").addEventListener("click", async functi
         const k = row.getAttribute("data-k") || `row-${i+1}`;
         const scale = safeScaleFor(row, DESIRED_SCALE, MAX_PIXELS);
 
-        badge.textContent = `Exporting ${k} (scale ${scale}×)… ${i+1}/${rows.length}`;
-        await toPNG(row, `${k}.png`, { scale, quality: QUALITY });
-
-        // Let the UI breathe between rows so you don't get the "unresponsive" dialog
-        await nextTick();
-        await idle();
+        badge.textContent = `Exporting ${k} as JPG (scale ${scale}x)… ${i+1}/${rows.length}`;
+       // await toPNG(row, `${k}.png`, { scale, quality: QUALITY });
+        //await toJPG(row, `${k}.jpg`, { scale, quality: QUALITY });
+        window.print();
       }
     }
 
-    // Export the reorder bar last (usually small)
+    // Export the reorder bar last 
     if (reorderBar) {
       const scale = safeScaleFor(reorderBar, DESIRED_SCALE, MAX_PIXELS);
-      badge.textContent = `Exporting reorder bar…`;
-      await toPNG(reorderBar, "cluster-reorder-bar.jpg", { scale, quality: QUALITY });
+      badge.textContent = `Exporting reorder bar as JPG…`;
+      await toJPG(reorderBar, "cluster-reorder-bar.jpg", { scale, quality: QUALITY });
+
     }
-      badge.textContent = 'Done ✓';
-      await sleep(600);
+    
+
+    badge.textContent = 'Done ✓';
+    await sleep(600);
   }
   catch (err) {
     console.error("Export failed:", err);
@@ -1426,9 +1828,11 @@ document.getElementById("downloadImgBtn").addEventListener("click", async functi
     alert("Export failed — check console.");
   } finally {
     badge.remove();
-    window.print();
+    window.print(); // open print dialogue box
   }
 });
+
+
 
 // [9] REFRESH ALL CHARTS FUNCTION - will be called after any major changes to re-render everything=========================================================================
 // Will be called after any major changes (like reordering populations, changing cluster order, color changes, etc.)
@@ -1451,6 +1855,8 @@ function refreshAllCharts() {
         .style("display", "flex")
         .style("gap", "80px")
         .style("align-items", "flex-start");
+ 
+
 
       row.append("div")
         .style("width", "60px")

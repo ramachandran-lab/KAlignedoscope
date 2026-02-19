@@ -9,7 +9,7 @@ import datetime
 import logging
 from importlib import resources
 
-def generate_html_content(data_json, alignment_json):
+def generate_html_content(data_json, alignment_json, mode_stats_json='{}'):
     # Step 2: Generate the HTML content
     script_text = resources.files("kalignedoscope").joinpath("script.js").read_text(encoding="utf-8")
 
@@ -68,6 +68,8 @@ body {{
   border-bottom: 8px solid #ccc;
   background-color:#425A63;
   border-radius: 8px;
+  min-width: 0;
+  flex-shrink: 1;
 
 }}
 h1{{
@@ -75,13 +77,14 @@ h1{{
     font-weight: bold;
     color:#F5eebb;
     margin: 30px;
+    
 }}
 
 #pageTitle {{
   font-family: "Helvetica", sans-serif;
   font-weight: bold;
   color:#F5eebb;
-  margin: 30px;
+  margin: 15px;
 
   cursor: text;            /* I-beam cursor */
   caret-color: #F5eebb;    
@@ -90,7 +93,8 @@ h1{{
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 700px;       
+  max-width: 600px;       
+  
 }}
 
 #pageTitle:focus {{
@@ -116,8 +120,8 @@ border: none;
 color: #425A63;
 background-color: #F5eebb;
 border-radius: 50%;
-margin-left: 20px;
-margin-right: 20px;
+margin-left: 8px;
+margin-right: 10px;
 }}
 
 #resetZoomBtn {{
@@ -134,11 +138,27 @@ color: #425A63;
 background-color: #F5eebb;
 border-radius: 50%;
 margin-left: 10px;
-margin-right: 45px;
+margin-right: 15px;
 }}
 
+#toggleLabelsBtn {{
+display: relative;
+width: 70px;
+height: 70px;
+font-family: "Helvetica", sans-serif;
+font-weight: bold;
+text-align: center;
+justify-content: center;
+align-items: center;
+border: none;
+color: #425A63;
+background-color: #F5eebb;
+border-radius: 50%;
+margin-left: 5px;
+margin-right: 10px;
+}}
 
-#toggleNetworkBtn:hover, #resetZoomBtn:hover {{
+#toggleNetworkBtn:hover, #resetZoomBtn:hover, #toggleLabelsBtn:hover {{
 background-color: #9A8A40;
 box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3);
 }}
@@ -271,7 +291,7 @@ border-radius: 8px;
 
   #toggleM1Btn {{
     display: flex;
-    width: 150px;
+    width: 80px;
     height: 90px;
     font-family: "Helvetica", sans-serif;
     font-weight: bold;
@@ -322,6 +342,7 @@ border-radius: 8px;
 .info-icon {{
   width: 32px;
   height: 32px;
+  margin-right: 6px;
   background-color: #F5EEBB;
   border-radius: 50%;
   border: none;
@@ -483,6 +504,10 @@ border-radius: 8px;
       padding: 10px;
     }}
 
+.top-controls {{
+  display: flex;
+  flex-wrap: wrap;
+}}
 
 .tab-buttons {{
  display: flex;
@@ -532,7 +557,7 @@ border-radius: 8px;
   flex-direction: column;
   align-items: stretch;
   justify-content: stretch;
-  width: 100px;                  
+  width: 120px;                  
   height: calc(100vh - 200px);  /* full height minus header */
   border-radius: 8px;
   margin-right: 20px;
@@ -541,21 +566,31 @@ border-radius: 8px;
   background: transparent; 
 }}
 .pencil-box {{
-  background: #425A63;         
-  color: #EDEED1;                
-  display: inline-flex;        
+  background: #425A63;
+  color: #EDEED1;
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
-  width: 50px;                 
+  justify-content: space-between;
+  width: 120px;                /* match #cluster-reorder-bar width */
   height: 50px;
-  border-radius: 8px;         
-  margin-bottom: 15px;         
+  border-radius: 8px;
+  margin-bottom: 15px;
   cursor: pointer;
+  padding: 6px 8px;
+  box-sizing: border-box;
 }}
 
+.pencil-box .drag-label {{
+  color: #EDEED1;
+  font-family: Helvetica, sans-serif;
+  font-weight: bold;
+  font-size: 16px;
+  margin-left: 6px;
+}}
 .pencil-box i {{
-  font-size: 25px;             /* icon size */
-  color: #EDEED1;                
+  font-size: 20px; /* arrow icon size */
+  color: #EDEED1;
+  margin-left: 8px;
 }}
 
 
@@ -627,11 +662,11 @@ border-radius: 8px;
 }}
 #openDomSort{{
   display: flex;
-  width: 150px;
+  width: 110px;
   height: 90px;
   font-family: "Helvetica", sans-serif;
   font-weight: bold;
-  font-size: 18px;
+  font-size: 15px;
   text-align: center;
   justify-content: center;
   align-items: center;
@@ -665,7 +700,7 @@ border-radius: 8px;
 <div id="header-row">
  <h1 id="pageTitle" contenteditable="true" spellcheck="false" data-placeholder="Type a title…">Clustering Modes</h1>
 
-<div style="display: flex; align-items: center; gap: 12px; margin-right: 20px;">
+<div style="display: flex; align-items: center; gap: 12px; margin-right: 0px;">
 <div class="info-container"><span class="info-icon">  ?  </span>
   <div class="info-box hidden" id="infoBox">
     <h3>How To Use This Tool:</h3>
@@ -699,11 +734,14 @@ border-radius: 8px;
    
 </div> -->
 
-<button id="toggleNetworkBtn">HIDE NETWORK</button>
-<button id="resetZoomBtn">RESET ZOOM</button>
+<div class="top-controls">
+  <button id="toggleNetworkBtn">HIDE NETWORK</button>
+  <button id="resetZoomBtn">RESET ZOOM</button>
+  <button id="toggleLabelsBtn">HIDE LABELS</button>
+  <button id="openDomSort">Sort By<br>Dominant Cluster</button>
+  <button id="toggleM1Btn">Hide Minor<br>Mode</button>
+</div>
 
-<button id="openDomSort">Sort By<br>Dominant Cluster</button>
-<button id="toggleM1Btn">Hide Minor<br>Mode</button>
 </div>
 </div>
 
@@ -763,7 +801,8 @@ border-radius: 8px;
 <!-- Cluster Stacking Order Bar and Main Chart Grid -->
 <div style="display: flex; flex-direction: column; gap: 6px;">
   <div class="pencil-box">
-  <i class="fa-solid fa-arrows-up-down"></i>
+    <span class="drag-label">Drag/Drop</span>
+    <i class="fa-solid fa-arrows-up-down"></i>
   </div>
   <div id="cluster-reorder-bar"></div>
   </div>
@@ -783,9 +822,10 @@ border-radius: 8px;
   <script>
     const allChartData = {data_json}; 
     const alignmentMatrix = {alignment_json};
+    const modeStats = {mode_stats_json};
     const pastelWithDarks = {color_palette_js};
 
-    console.log("Alignment Matrix:", alignmentMatrix);
+    console.log("modeStats loaded:", modeStats);
   </script>
   <script>
   {script_text}
