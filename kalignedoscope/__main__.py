@@ -105,8 +105,6 @@ def print_inputs(args) -> None:
     print("Processed membership folder:", args.processed_membership)
     print("Label file:", args.label_file)
     print("Alignment file:", args.alignment_file)
-    print("Alignment per-K file:", args.alignment_perK_file)
-    print("Alignment across-K file:", args.alignment_acrossK_file)
     print("Mode stats:", args.mode_stats)
     print("\n")
 
