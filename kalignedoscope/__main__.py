@@ -82,9 +82,7 @@ def validate_args(args) -> None:
     _optional_file(args.label_file, "--label_file")
     _optional_file(args.mode_stats, "--mode_stats")
     _optional_file(args.alignment_file, "--alignment_file")
-    _optional_file(args.alignment_perK_file, "--alignment_perK_file")
-    _optional_file(args.alignment_acrossK_file, "--alignment_acrossK_file")
-
+    
     # provide the intermediate output overwrite warning
     # processed_membership is our intermediate folder 
     _confirm_overwrite_folder(args.processed_membership, what="--processed_membership folder")
@@ -92,9 +90,6 @@ def validate_args(args) -> None:
     # Check those paths that can exist but still be wrong
     if args.alignment_file is not None and args.input_tool != "clumppling":
         raise ValueError("--alignment_file can only be used with --input_tool clumppling.")
-
-    if (args.alignment_perK_file is not None or args.alignment_acrossK_file is not None) and args.input_tool != "pong":
-        raise ValueError("--alignment_perK_file / --alignment_acrossK_file can only be used with --input_tool pong.")
 
     #remember our value error here if user specifies pong
 
