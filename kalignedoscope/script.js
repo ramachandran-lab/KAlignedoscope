@@ -144,6 +144,41 @@ const zoom = d3.zoom()
 
 wrapper.call(zoom);
 
+// --- Capture the "opening" zoom state once, then reuse it for exports ---
+let OPENING_ZOOM = null;
+
+// wait two frames so initial layout + any initial zoom transform settles
+const raf2 = () => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+
+// Call this once after the page is in its initial "opening" view
+async function captureOpeningZoom(wrapperSel) {
+  await raf2();
+  OPENING_ZOOM = wrapperSel.node().__zoom || d3.zoomIdentity;
+  // optional debug:
+  // console.log("Captured OPENING_ZOOM:", OPENING_ZOOM);
+}
+
+// Temporarily switch to the captured opening zoom while exporting, then restore
+async function withOpeningZoomForExport({ wrapperSel, zoom }, fn) {
+  const prev = wrapperSel.node().__zoom || d3.zoomIdentity;
+
+  if (!OPENING_ZOOM) {
+    // If we forgot to capture, fall back to whatever is current (won't crash)
+    console.warn("OPENING_ZOOM not captured yet; using current zoom.");
+    OPENING_ZOOM = prev;
+  }
+
+  wrapperSel.call(zoom.transform, OPENING_ZOOM);
+  await raf2();
+
+  try {
+    return await fn();
+  } finally {
+    wrapperSel.call(zoom.transform, prev);
+    await raf2();
+  }
+}
+
 
 // tip for the pencil box only - just giving more information 
 const pencil = d3.select(".pencil-box");
@@ -417,7 +452,7 @@ Object.entries(populationGroups).forEach(([popName, individuals]) => {
       .attr("x", 180)
       .attr("y", margin.top / 2 + 20)
       .attr("text-anchor", "middle")
-      .style("font-size", "50px")
+      .style("font-size", "40px")
       .style("font-weight", "500")
       .style("font-family", "Helvetica, sans-serif")
       .text(chartTitle + sizeText);
@@ -498,6 +533,11 @@ Object.keys(allChartData)
   });
 
 }
+
+// capture our intial opening zoom, which is useful for figuring out download sizing/resetting view when needed
+window.addEventListener("load", () => {
+  captureOpeningZoom(wrapper);
+});
 
 
 // [4] NETWORK CONNECTIONS=========================================================================
@@ -1575,117 +1615,6 @@ async function downloadRasterFromSVGString(svgString, filename, {
   }
 }
 
-// 1) Build the combined SVG string (same logic as your exportWholeGridAsSVG, but returns the SVG string)
-function buildWholeGridSVGString(gridEl) {
-  const svgs = Array.from(gridEl.querySelectorAll("svg"))
-    .filter(svg => !svg.classList.contains("no-export") && !svg.closest(".no-export"));
-
-  if (!svgs.length) throw new Error("No <svg> elements found inside #chart-grid.");
-
-  const gridRect = gridEl.getBoundingClientRect();
-  const localBox = (el) => {
-    const r = el.getBoundingClientRect();
-    return {
-      x: (r.left - gridRect.left) + gridEl.scrollLeft,
-      y: (r.top  - gridRect.top ) + gridEl.scrollTop,
-      w: r.width,
-      h: r.height
-    };
-  };
-
-  const items = svgs.map(svg => ({ svg, ...localBox(svg) }));
-  const maxX = Math.ceil(Math.max(...items.map(d => d.x + d.w)));
-  const maxY = Math.ceil(Math.max(...items.map(d => d.y + d.h)));
-
-  const NS = "http://www.w3.org/2000/svg";
-  const out = document.createElementNS(NS, "svg");
-  out.setAttribute("xmlns", NS);
-  out.setAttribute("width", String(maxX));
-  out.setAttribute("height", String(maxY));
-  out.setAttribute("viewBox", `0 0 ${maxX} ${maxY}`);
-
-  // white background
-  const bg = document.createElementNS(NS, "rect");
-  bg.setAttribute("x", "0");
-  bg.setAttribute("y", "0");
-  bg.setAttribute("width", "100%");
-  bg.setAttribute("height", "100%");
-  bg.setAttribute("fill", "#ffffff");
-  out.appendChild(bg);
-
-  items.forEach(({ svg, x, y, w, h }) => {
-    const g = document.createElementNS(NS, "g");
-    g.setAttribute("transform", `translate(${x},${y})`);
-
-    const clone = svg.cloneNode(true);
-    clone.style.transform = "";
-    clone.style.transformOrigin = "";
-
-    const sw = parseFloat(clone.getAttribute("width"))  || w;
-    const sh = parseFloat(clone.getAttribute("height")) || h;
-    if (!clone.getAttribute("viewBox")) clone.setAttribute("viewBox", `0 0 ${sw} ${sh}`);
-
-    const frag = document.createDocumentFragment();
-    Array.from(clone.childNodes).forEach(n => frag.appendChild(n.cloneNode(true)));
-    g.appendChild(frag);
-    out.appendChild(g);
-  });
-
-  const serializer = new XMLSerializer();
-  let source = serializer.serializeToString(out);
-  if (!source.startsWith("<?xml")) {
-    source = `<?xml version="1.0" encoding="UTF-8"?>\n` + source;
-  }
-  return source;
-}
-
-// 2) Convert SVG string -> PNG (or JPEG) via canvas, then download
-async function downloadRasterFromSVGString(svgString, filename, {
-  scale = 2,
-  type = "image/png",     // "image/png" or "image/jpeg"
-  quality = 0.95          // used for JPEG only
-} = {}) {
-  const blob = new Blob([svgString], { type: "image/svg+xml;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-
-  try {
-    const img = new Image();
-    // If you use external images inside SVG, you may need: img.crossOrigin = "anonymous";
-    await new Promise((resolve, reject) => {
-      img.onload = resolve;
-      img.onerror = reject;
-      img.src = url;
-    });
-
-    const w = Math.ceil(img.width * scale);
-    const h = Math.ceil(img.height * scale);
-
-    const canvas = document.createElement("canvas");
-    canvas.width = w;
-    canvas.height = h;
-
-    const ctx = canvas.getContext("2d");
-    ctx.setTransform(scale, 0, 0, scale, 0, 0);
-    ctx.drawImage(img, 0, 0);
-
-    const outBlob = await new Promise((resolve) => {
-      canvas.toBlob(resolve, type, quality);
-    });
-
-    const outUrl = URL.createObjectURL(outBlob);
-    const a = document.createElement("a");
-    a.href = outUrl;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    setTimeout(() => URL.revokeObjectURL(outUrl), 2000);
-  } finally {
-    URL.revokeObjectURL(url);
-  }
-}
-
-
 // Render a node to JPEG (usually faster + smaller than PNG)
 async function toJPG(node, filename, { scale = 2, quality = 0.95 } = {}) {
   const width  = Math.max(node.scrollWidth,  node.clientWidth);
@@ -1759,79 +1688,63 @@ function showProgressBadge() {
   return el;
 }
 
-// --- Button handler: export each row to its own JPEG, yielding between rows --- GO THROUGH AGAIN TO TWEAK
+
+
 document.getElementById("downloadImgBtn").addEventListener("click", async function () {
   const grid = document.getElementById("chart-grid");
-  const rows = Array.from(grid.querySelectorAll(".k-row"));
   const reorderBar = document.getElementById("cluster-reorder-bar");
 
-    
-const svgString = buildWholeGridSVGString(grid);
-
-// PNG (lossless)
-await downloadRasterFromSVGString(svgString, "chart-grid.png", { scale: 2, type: "image/png" });
-
-
-
-  
-  // TUNING: default quality/scale
-  const DESIRED_SCALE = 2;   // try 2 first, 3 is sharper but heavier
-  const QUALITY = 0.95;     
-  const MAX_PIXELS = 6_000_000; 
+  const DESIRED_SCALE = 2;
+  const QUALITY = 0.95;
+  const MAX_PIXELS = 6_000_000;
 
   const badge = showProgressBadge();
 
   try {
     // If no row grouping yet, fall back to whole-grid export (still with safety cap)
-    if (!rows.length) {
-      badge.textContent = `Exporting grid as SVG…`;
-      await nextTick();
-      await idle();
-      exportWholeGridAsSVG(grid, "chart-grid.svg");
+    await withOpeningZoomForExport(
+      { wrapperSel: wrapper, zoom },
+      async () => {
 
-      const scale = safeScaleFor(grid, DESIRED_SCALE, MAX_PIXELS);
-      badge.textContent = `Exporting grid as PNG (scale ${scale} x)…`;
-     // await toPNG(grid, "chart-grid.png", { scale, quality: QUALITY });
-     //await toJPG(grid, "chart-grid.jpg", { scale, quality: QUALITY });
+        badge.textContent = `Exporting grid…`;
+        await raf2(); // let zoom reset visually
 
+        const svgString = await buildWholeGridSVGString(grid);
 
-    } else {
-      // Export each row (prevents massive single render)
-      for (let i = 0; i < rows.length; i++) {
-        const row = rows[i];
-        const k = row.getAttribute("data-k") || `row-${i+1}`;
-        const scale = safeScaleFor(row, DESIRED_SCALE, MAX_PIXELS);
+        // PNG
+        await downloadRasterFromSVGString(svgString, "chart-grid.png", {
+          scale: 2,
+          type: "image/png"
+        });
 
-        badge.textContent = `Exporting ${k} as JPG (scale ${scale}x)… ${i+1}/${rows.length}`;
-       // await toPNG(row, `${k}.png`, { scale, quality: QUALITY });
-        //await toJPG(row, `${k}.jpg`, { scale, quality: QUALITY });
-        window.print();
+        // SVG
+        exportWholeGridAsSVG(grid, "chart-grid.svg");
+
+        // Reorder bar last
+        if (reorderBar) {
+          const scale = safeScaleFor(reorderBar, DESIRED_SCALE, MAX_PIXELS);
+          badge.textContent = `Exporting reorder bar…`;
+          await toJPG(reorderBar, "cluster-reorder-bar.jpg", { scale, quality: QUALITY });
+        }
       }
-    }
+    );
 
-    // Export the reorder bar last 
-    if (reorderBar) {
-      const scale = safeScaleFor(reorderBar, DESIRED_SCALE, MAX_PIXELS);
-      badge.textContent = `Exporting reorder bar as JPG…`;
-      await toJPG(reorderBar, "cluster-reorder-bar.jpg", { scale, quality: QUALITY });
-
-    }
-    
-
-    badge.textContent = 'Done ✓';
+    badge.textContent = "Done ✓";
     await sleep(600);
-  }
-  catch (err) {
+
+  } catch (err) {
     console.error("Export failed:", err);
-    badge.textContent = 'Export failed';
+    badge.textContent = "Export failed";
     await sleep(1200);
     alert("Export failed — check console.");
   } finally {
     badge.remove();
-    window.print(); // open print dialogue box
+    window.print();
   }
 });
 
+
+ 
 
 
 // [9] REFRESH ALL CHARTS FUNCTION - will be called after any major changes to re-render everything=========================================================================

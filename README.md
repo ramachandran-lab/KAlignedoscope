@@ -17,7 +17,7 @@
 
 ## Example interface
 <p align="center">
-<img src="interface_ex_capeverde.png" alt="KAlignedoscope's visualization of Cape Verde aligned modes" width="600">
+<img src="interface_ex_cape_verde_clustering_modes.png" alt="KAlignedoscope's visualization of Cape Verde aligned modes" width="600">
 </p>
 
 ## Terminologies and summary of features

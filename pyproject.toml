@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "KAlignedoscope"
-version = "0.2.2"
+version = "0.2.3"
 description = "Interactive Visualization Tool for Clustering Alignment"
 authors = ["Avery Guo <avery_guo@brown.edu>", "Xiran Liu"]
 license = "MIT"
